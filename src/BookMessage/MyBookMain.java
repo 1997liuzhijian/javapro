@@ -1,5 +1,6 @@
 package BookMessage;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -7,8 +8,14 @@ import java.util.Scanner;
 public class MyBookMain {
     public static Mybook[] books = new Mybook[200];
     public static List<Mybook> List = new ArrayList<>();
+    public static File file = new File("d:/books");
     public static void main(String[] args){
-        inputData(List);
+        if(!file.exists()){
+            inputData(List);
+            save();
+        }else {
+            read();
+        }
         menu();
         //print(List);
         //searchName(List,"书名9");
@@ -49,6 +56,7 @@ public class MyBookMain {
     }
     public static void inputData(List<Mybook> books){
         Scanner scanner = new Scanner(System.in);
+        System.out.println("首次运行系统请输入初始化书籍的数量");
         int n = scanner.nextInt();
         for(int i=1;i<=n;i++){
             Mybook mybook = new Mybook("书名"+i,Double.valueOf(Double.valueOf(i)),"出版社"+i,"作者"+i,"ISBN"+i);
@@ -79,6 +87,7 @@ public class MyBookMain {
             if(mybook.getName().equals(name)){
                 books.remove(i);
                 System.out.println("删除成功");
+                save();
                 menu();
                 return;
             };
@@ -100,6 +109,62 @@ public class MyBookMain {
         String bookISBN = scanner.next();
         Mybook myBook = new Mybook(name,price,press,author,bookISBN);
         books.add(myBook);
+        save();
         menu();
     }
+    public static void save(){
+        OutputStream os = null;
+        ObjectOutputStream oos = null;
+        try {
+            os = new FileOutputStream(file);
+            oos = new ObjectOutputStream(os);
+            oos.writeObject(List);
+            oos.flush();
+            os.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(oos!=null)
+                oos.close();
+                if(os!=null)
+                    os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    public static void read(){
+        InputStream is = null;
+        ObjectInputStream ois = null;
+        try {
+            is = new FileInputStream(file);
+            ois = new ObjectInputStream(is);
+            List = (List<Mybook>)ois.readObject();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(ois!=null)
+                    ois.close();
+                if(is!=null)
+                    is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+/*
+* 1 图书管理  先判断 是否持久化
+2 如果已经持久化  把文件中的数据读出来作为初始数据
+3 如果没有持久化 自行放置10-20个数据 然后存到硬盘
+4 给每次增删改 都增加持久化
+* */

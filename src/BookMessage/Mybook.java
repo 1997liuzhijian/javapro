@@ -16,8 +16,10 @@ package BookMessage;
  * 4：退出当用户输入1-3时，分别调用输入、删除和查找函数，当用户输入4时程序结束。* */
 
 
+import java.io.Serializable;
 
-public class Mybook {
+public class Mybook implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String name;
     private double price;
     private String press;
